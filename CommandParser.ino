@@ -5,6 +5,8 @@
 MCP4728 mcp;
 const int NUM_MCP_PINS = 4;
 
+enum COMMAND_ERRORS {READ_WRITE, TYPE, PIN};
+
 void setup() {
   
   Serial.begin(115200);
@@ -51,7 +53,7 @@ void serialEvent() {
       removeWord(&message);
       int pin = message.substring(0, message.indexOf(' ')).toInt();
       if(pin < NUM_DIGITAL_PINS) Serial.print(String(digitalRead(pin))+';');
-      else commandError(3);
+      else commandError(2);
     }
     else if(message.indexOf("ADC") != -1) {
       //ADC type
@@ -69,7 +71,7 @@ void serialEvent() {
       int pin = message.substring(0, message.indexOf(' ')).toInt(); 
       int value = message.substring(message.indexOf(' ')).toInt();
       if(pin < NUM_DIGITAL_PINS) digitalWrite(pin, value);
-      else commandError(3);
+      else commandError(2);
     }
     else if(message.indexOf("DAC") != -1) {
       //DAC type
@@ -77,13 +79,13 @@ void serialEvent() {
       int pin = message.substring(0, message.indexOf(' ')).toInt(); 
       int value = message.substring(message.indexOf(' ')).toInt();
       if(pin < NUM_MCP_PINS) mcp.analogWrite(pin, value);
-      else commandError(3);
+      else commandError(2);
       delay(10);
       mcp.readRegisters();
 
     }
     else{
-      commandError(2);
+      commandError(1);
     }
   }
   else{
@@ -97,6 +99,18 @@ void removeWord(String* m) {
 }
 
 void commandError(int e){
-  Serial.print("Command error ");
-  Serial.println(e);
+  Serial.print("\n Command error: ");
+  switch(e) {
+    case READ_WRITE:
+      Serial.println("read write");
+    break;
+    case COMMAND_ERRORS::TYPE:
+      Serial.println("type");
+    break;
+    case COMMAND_ERRORS::PIN:
+      Serial.println("pin");
+    break;
+    default:
+      Serial.println("unknown");
+  }
 }
