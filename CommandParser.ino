@@ -53,13 +53,13 @@ void serialEvent() {
       removeWord(&message);
       int pin = message.substring(0, message.indexOf(' ')).toInt();
       if(pin < NUM_DIGITAL_PINS) Serial.print(String(digitalRead(pin))+';');
-      else commandError(2);
+      else commandError(COMMAND_ERRORS::PIN);
     }
     else if(message.indexOf("ADC") != -1) {
       //ADC type
     }
     else{
-      commandError(1);
+      commandError(COMMAND_ERRORS::TYPE);
     }
     
   }else if(message.indexOf("WRITE") != -1) {
@@ -71,7 +71,7 @@ void serialEvent() {
       int pin = message.substring(0, message.indexOf(' ')).toInt(); 
       int value = message.substring(message.indexOf(' ')).toInt();
       if(pin < NUM_DIGITAL_PINS) digitalWrite(pin, value);
-      else commandError(2);
+      else commandError(COMMAND_ERRORS::PIN);
     }
     else if(message.indexOf("DAC") != -1) {
       //DAC type
@@ -79,17 +79,17 @@ void serialEvent() {
       int pin = message.substring(0, message.indexOf(' ')).toInt(); 
       int value = message.substring(message.indexOf(' ')).toInt();
       if(pin < NUM_MCP_PINS) mcp.analogWrite(pin, value);
-      else commandError(2);
+      else commandError(COMMAND_ERRORS::PIN);
       delay(10);
       mcp.readRegisters();
 
     }
     else{
-      commandError(1);
+      commandError(COMMAND_ERRORS::TYPE);
     }
   }
   else{
-    commandError(0);
+    commandError(COMMAND_ERRORS::READ_WRITE);
   }
 
 }
@@ -101,7 +101,7 @@ void removeWord(String* m) {
 void commandError(int e){
   Serial.print("\n Command error: ");
   switch(e) {
-    case READ_WRITE:
+    case COMMAND_ERRORS::READ_WRITE:
       Serial.println("read write");
     break;
     case COMMAND_ERRORS::TYPE:
