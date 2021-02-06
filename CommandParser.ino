@@ -3,7 +3,9 @@
 #include "MCP4728.h"
 
 MCP4728 mcp;
-const int NUM_MCP_PINS = 4;
+const int DIGITAL_PIN_COUNT = 14;
+const int MCP_PIN_COUNT = 4;
+const int ANALOG_PIN_COUNT = 6;
 
 enum COMMAND_ERRORS
 {
@@ -60,14 +62,28 @@ void serialEvent()
       //GPIO type
       removeWord(&message);
       int pin = message.substring(0, message.indexOf(' ')).toInt();
-      if (pin < NUM_DIGITAL_PINS)
+      if (pin < DIGITAL_PIN_COUNT)
+      {
         Serial.print(String(digitalRead(pin)) + ';');
+      }
       else
+      {
         commandError(COMMAND_ERRORS::PIN);
+      }
     }
     else if (message.indexOf("ADC") != -1)
     {
       //ADC type
+      removeWord(&message);
+      int pin = message.substring(0, message.indexOf(' ')).toInt();
+      if (pin < NUM_ANALOG_INPUTS)
+      {
+        Serial.print(String(analogRead(pin + DIGITAL_PIN_COUNT)) + ';');
+      }
+      else
+      {
+        commandError(COMMAND_ERRORS::PIN);
+      } 
     }
     else
     {
@@ -84,10 +100,14 @@ void serialEvent()
       removeWord(&message);
       int pin = message.substring(0, message.indexOf(' ')).toInt();
       int value = message.substring(message.indexOf(' ')).toInt();
-      if (pin < NUM_DIGITAL_PINS)
+      if (pin < DIGITAL_PIN_COUNT) 
+      {
         digitalWrite(pin, value);
+      }
       else
+      {
         commandError(COMMAND_ERRORS::PIN);
+      }
     }
     else if (message.indexOf("DAC") != -1)
     {
@@ -95,10 +115,14 @@ void serialEvent()
       removeWord(&message);
       int pin = message.substring(0, message.indexOf(' ')).toInt();
       int value = message.substring(message.indexOf(' ')).toInt();
-      if (pin < NUM_MCP_PINS)
+      if (pin < MCP_PIN_COUNT)
+      { 
         mcp.analogWrite(pin, value);
+      }
       else
+      {
         commandError(COMMAND_ERRORS::PIN);
+      }
       delay(10);
       mcp.readRegisters();
     }
