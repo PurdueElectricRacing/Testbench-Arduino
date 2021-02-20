@@ -1,5 +1,0 @@
-{
-    "sketch": "CommandParser.ino",
-    "board": "arduino:avr:uno",
-    "port": "COM3"
-}
