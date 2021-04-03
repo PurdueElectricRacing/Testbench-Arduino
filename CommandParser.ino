@@ -102,6 +102,7 @@ void serialEvent()
       int value = message.substring(message.indexOf(' ')).toInt();
       if (pin < DIGITAL_PIN_COUNT) 
       {
+        pinMode(pin, OUTPUT);
         digitalWrite(pin, value);
       }
       else
