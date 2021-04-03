@@ -6,3 +6,4 @@ READ ADC | GPIO PIN_NUM
 WRITE DAC | GPIO PIN_NUM VALUE
   - DAC specifies to write the value to the DAC module (connected over I2C)
   - GPIO specifies to write the digital pin to VALUE 
+    - 1 denotes HIGH, 0 denotes LOW
