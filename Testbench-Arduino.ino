@@ -77,13 +77,38 @@ void setup()
   mcp.readRegisters();
   delay(100);
 
+  #ifdef DEBUG
   lcd.init();                      // initialize the lcd 
   lcd.backlight();
-  Serial.begin(115200);
-  pinMode(13, OUTPUT);
   lcd.setCursor(0,0);
   lcd.print("Ready");
+  #endif
+  Serial.begin(115200);
+  pinMode(13, OUTPUT);
 }
+
+void error(String error_string)
+{
+  Serial.println(error_string);
+#ifdef DEBUG
+  lcd.clear();
+  lcd.printstr(error_string.c_str());
+#endif
+}
+
+#ifdef DEBUG 
+#define LCD_DEBUG(command, pin, value)  \
+  lcd.clear(); \
+  lcd.print(command); \
+  lcd.print(" "); \
+  lcd.print(pin); \
+  lcd.print(" "); \
+  lcd.print(value); \
+
+#else
+#define LCD_DEBUG(command) ;
+#endif 
+
 
 void loop()
 {
@@ -98,6 +123,9 @@ void loop()
     uint8_t command = c.command();
     uint8_t pin = c.pin();
     uint16_t value = c.value();
+
+    // LCD_DEBUG(command, pin, value);
+
     switch (command)
     {
       case (WRITE_GPIO):
@@ -109,12 +137,13 @@ void loop()
         }
         else
         {
-          Serial.println("GPIO PIN COUNT EXCEEDED");
+          error("GPIO PIN COUNT EXCEEDED");
         }
         break;
       }
       case (READ_GPIO):
       {
+        lcd.clear();
         if (pin < DIGITAL_PIN_COUNT)
         {
           pinMode(pin, INPUT);
@@ -123,7 +152,7 @@ void loop()
         }
         else
         {
-          Serial.println("GPIO PIN COUNT EXCEEDED");
+          error("GPIO PIN COUNT EXCEEDED");
         }
         break;
       }
@@ -135,7 +164,7 @@ void loop()
         }
         else
         {
-          Serial.println("DAC PIN COUNT EXCEEDED");
+          error("DAC PIN COUNT EXCEEDED");
         }
         break;
       }
@@ -144,25 +173,16 @@ void loop()
         if (pin < ANALOG_PIN_COUNT)
         {
           int val = analogRead(pin);
-          Serial.write(val);
+          Serial.println(val);
         }
         else
         {
-          Serial.println("ADC PIN COUNT EXCEEDED");
+          error("ADC PIN COUNT EXCEEDED");
         }
         break;
       }
     }
   }
-
-  #ifdef DEBUG
-  if (millis() > 10 * 1000)
-  {
-    lcd.clear();
-    lcd.print(count);
-    delay(1000);
-  }
-  #endif
 }
 
 
